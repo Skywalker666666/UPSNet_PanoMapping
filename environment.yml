@@ -1,0 +1,17 @@
+name: upsnet_pytorch
+channels:
+  - defaults
+  - anaconda
+dependencies:
+  - python=3.6
+  - pytorch=0.4.1
+  - pip
+  - pip:
+    - pyyaml
+    - pycocotools
+    - tensorboardX
+    - freeze
+    - image
+    - opencv-python 
+    - easydict
+    - networkx
