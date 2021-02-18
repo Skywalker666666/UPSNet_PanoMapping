@@ -1,3 +1,5 @@
+#!/usr/bin/env /home/zhiliu/anaconda3/envs/upsnet_pytorch/bin/python3
+
 # ---------------------------------------------------------------------------
 # Unified Panoptic Segmentation Network
 #

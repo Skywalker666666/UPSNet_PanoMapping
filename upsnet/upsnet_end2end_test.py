@@ -198,7 +198,7 @@ def upsnet_test():
 
     test_model = DataParallel(test_model, device_ids=gpus, gather_output=False).to(gpus[0])
 
-    # start training
+    # start testing
     test_model.eval()
 
     i_iter = 0
