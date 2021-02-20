@@ -119,6 +119,10 @@ class BaseDataset(torch.utils.data.Dataset):
         scale_inds = np.random.randint(
             0, high=len(config.train.scales), size=num_images
         )
+        print("******************************************************scale_inds: ")
+        print(scale_inds)
+        print(config.train.scales)
+        print(len(config.train.scales))
         processed_ims = []
         im_scales = []
         for i in range(num_images):
@@ -128,15 +132,29 @@ class BaseDataset(torch.utils.data.Dataset):
             if roidb[i]['flipped']:
                 im = im[:, ::-1, :]
             target_size = config.train.scales[scale_inds[i]]
+            print("i: ")
+            print(i)
+            print("scale_inds: ")
+            print(scale_inds)
+            print("target_size = config.train.scales[scale_inds[i]]: ")
+            print(target_size)
             im, im_scale = self.prep_im_for_blob(
                 im, config.network.pixel_means, [target_size], config.train.max_size
             )
             im_scales.append(im_scale[0])
             processed_ims.append(im[0].transpose(2, 0, 1))
 
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$blob in base_data.py:")
+        print("len(processed_ims): ")
+        print(len(processed_ims))
+
         # Create a blob to hold the input images
         assert len(processed_ims) == 1
         blob = processed_ims[0]
+        
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$blob in base_data.py:")
+        print(blob)
+        print(blob.shape)
 
         return blob, im_scales
 
@@ -158,6 +176,14 @@ class BaseDataset(torch.utils.data.Dataset):
         im_shape = im.shape
         im_size_min = np.min(im_shape[0:2])
         im_size_max = np.max(im_shape[0:2])
+        print("im_shape: ")
+        print(im_shape)
+        print(im_shape[0:2])
+
+        print("im_size_min: ")
+        print(im_size_min)
+        print("im_size_max: ")
+        print(im_size_max)
 
         ims = []
         im_scales = []
@@ -166,6 +192,8 @@ class BaseDataset(torch.utils.data.Dataset):
             # Prevent the biggest axis from being more than max_size
             if np.round(im_scale * im_size_max) > max_size:
                 im_scale = float(max_size) / float(im_size_max)
+            print("im_scale: ")
+            print(im_scale)
             im = cv2.resize(im, None, None, fx=im_scale, fy=im_scale,
                             interpolation=cv2.INTER_LINEAR)
             ims.append(im)
@@ -220,6 +248,8 @@ class BaseDataset(torch.utils.data.Dataset):
             with open(pan_gt_json_file, 'r') as f:
                 pan_gt_json = json.load(f)
             files = [item['file_name'] for item in pan_gt_json['images']]
+            print("Name of first gt file: ")
+            print(files[0])
             cpu_num = multiprocessing.cpu_count()
             files_split = np.array_split(files, cpu_num)
             workers = multiprocessing.Pool(processes=cpu_num)
@@ -961,7 +991,11 @@ class BaseDataset(torch.utils.data.Dataset):
             return None
         blob = {}
         for key in batch[0]:
+            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            print("key: ")
+            print(key)
             if key == 'data':
+                print("we are in")
                 blob.update({'data': torch.from_numpy(self.im_list_to_blob([b['data'] for b in batch]))})
                 if config.network.has_panoptic_head:
                     blob.update({'data_4x': torch.from_numpy(self.im_list_to_blob([b['data'] for b in batch], scale=1/4.))})
@@ -976,6 +1010,7 @@ class BaseDataset(torch.utils.data.Dataset):
                 blob.update({'mask_gt': torch.from_numpy(self.gt_list_to_blob([b['mask_gt'] for b in batch], scale=1./4))})
             elif key == 'im_info':
                 blob.update({'im_info': np.vstack([b['im_info'] for b in batch])})
+                print("we are in 2")
             elif key == 'roidb':
                 assert len(batch) == 1
                 blob.update({'roidb': batch[0]['roidb']})

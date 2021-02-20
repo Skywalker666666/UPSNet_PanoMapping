@@ -54,6 +54,7 @@ class coco(BaseDataset):
             'train2017': os.path.join(config.dataset.dataset_path, 'images', 'train2017'),
             'val2017': os.path.join(config.dataset.dataset_path, 'images', 'val2017'),
             'test-dev2017': os.path.join(config.dataset.dataset_path, 'images', 'test2017'),
+            'soloval2017': os.path.join(config.dataset.dataset_path, 'images', 'val2017'),
         }
 
         anno_files = {
@@ -66,6 +67,7 @@ class coco(BaseDataset):
             'train2017': 'instances_train2017.json',
             'val2017': 'instances_val2017.json',
             'test-dev2017': 'image_info_test-dev2017.json',
+            'soloval2017': 'instances_soloval2017.json',
         }
 
         if image_sets[0] == 'test-dev2017':
@@ -124,6 +126,13 @@ class coco(BaseDataset):
     def __getitem__(self, index):
         blob = defaultdict(list)
         im_blob, im_scales = self.get_image_blob([self.roidb[index]])
+
+
+        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        print("im_blob")
+        print(im_blob)
+        print(im_blob.shape)
+        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         if config.network.has_rpn:
             if self.phase != 'test':
                 add_rpn_blobs(blob, im_scales, [self.roidb[index]])
@@ -187,7 +196,16 @@ class coco(BaseDataset):
                         label['seg_roi_gt'][i] = cv2.resize(seg_gt[gt_boxes[i][1]:gt_boxes[i][3], gt_boxes[i][0]:gt_boxes[i][2]], (config.network.mask_size, config.network.mask_size), interpolation=cv2.INTER_NEAREST)
             else:
                 pass
-                
+        
+        print("in the end of coco: ")
+        print("data")
+        print(data)
+        print("data size: ")
+        print(len(data))
+        print("label")
+        print(label)
+        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        
         return data, label, index
 
 
