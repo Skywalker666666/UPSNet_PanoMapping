@@ -36,7 +36,7 @@ args.eval_only = False
 update_config(args.cfg)
 
 # *****************************************************************************************************
-#function borrowed from upsnet/dataset/base_data.py
+# function borrowed from upsnet/dataset/base_data.py
 def prep_im_for_blob(im, pixel_means, target_sizes, max_size):
     """Prepare an image for use as a network input blob. Specially:
       - Subtract per-channel pixel mean
@@ -82,6 +82,7 @@ def prep_im_for_blob(im, pixel_means, target_sizes, max_size):
 
 
 
+# function borrowed from upsnet/dataset/base_data.py
 def im_list_to_blob(ims, scale=1):
     """Convert a list of images into a network input. Assumes images were
     prepared using prep_im_for_blob or equivalent: i.e.
@@ -111,6 +112,7 @@ def im_list_to_blob(ims, scale=1):
     return blob
 
 
+# function borrowed from upsnet/dataset/base_data.py
 def get_unified_pan_result(segs, pans, cls_inds, stuff_area_limit=4 * 64 * 64):
     pred_pans_2ch = []
 
@@ -157,11 +159,6 @@ def get_unified_pan_result(segs, pans, cls_inds, stuff_area_limit=4 * 64 * 64):
 
 
 
-
-
-
-
-
 # *****************************************************************************************************
 # prepare the model
 test_model = eval("resnet_50_upsnet")().cuda()
@@ -201,12 +198,12 @@ print(ims[0].shape)
 
 # *****************************************************************************************************
 # image transpose, don't convert to torch tensor now
-im_tensor = ims[0].transpose(2, 0, 1)
-#im_tensor = torch.from_numpy(ims[0].transpose(2, 0, 1))
-#im_tensor = torch.unsqueeze(im_tensor,0).type(torch.FloatTensor).cuda()
+im_trans = ims[0].transpose(2, 0, 1)
+#im_trans = torch.from_numpy(ims[0].transpose(2, 0, 1))
+#im_trans = torch.unsqueeze(im_trans,0).type(torch.FloatTensor).cuda()
 
 print("image size after transpose: ")
-print(im_tensor.shape)
+print(im_trans.shape)
 im_infos = np.array([[
            ims[0].shape[0],
            ims[0].shape[1],
@@ -214,8 +211,10 @@ im_infos = np.array([[
 
 
 
+# *****************************************************************************************************
 # batch collate
-batch = [{'data': im_tensor , 'im_info' : im_infos}]
+# prepare data fro fcn
+batch = [{'data': im_trans , 'im_info' : im_infos}]
 blob = {}
 for key in batch[0]:
     if key == 'data':
@@ -225,8 +224,9 @@ for key in batch[0]:
     elif key == 'im_info':
         blob.update({'im_info': np.vstack([b['im_info'] for b in batch])})
 
+# *****************************************************************************************************
 # batch cuda conversion
-# TO DO, multi GPU cards
+# TO DO, if we want to support multi GPU cards, we can add parallel information here
 for k, v in blob.items():
     # 'data' and 'data_4x' are cuda type, img_info is non cuda
     blob[k] = v.cuda() if torch.is_tensor(v) else v
@@ -239,6 +239,8 @@ print(batch_clt['data'].shape)
 print(batch_clt['data_4x'].shape)
 
 
+# *****************************************************************************************************
+# run the prediction
 #print(batch['im_info'])
 with torch.no_grad():
     output_all = test_model(batch_clt)
@@ -247,8 +249,12 @@ output = {k: v.data.cpu().numpy() for k, v in output_all.items()}
 
 
 
+# *****************************************************************************************************
+# coolect the output
 sseg = output['fcn_outputs']
 pano = output['panoptic_outputs']
+pano_cls_ind = output['panoptic_cls_inds']
+
 print("ssegs: ")
 print(output['fcn_outputs'].shape)
 
@@ -262,7 +268,8 @@ print(output['panoptic_cls_inds'])
 
 
 
-
+# *****************************************************************************************************
+# restore the image to original size, and append it to a list, then can support both group and individual
 ssegs = []
 #for i, sseg in enumerate(output['ssegs']):
 sseg = sseg.squeeze(0).astype('uint8')[:int(im_infos[0][0]), :int(im_infos[0][1])]
@@ -278,7 +285,6 @@ print(im_infos[0][1])
 print(im_infos[0][2])
 
 pano_cls_inds = []
-pano_cls_ind = output['panoptic_cls_inds']
 pano_cls_inds.append(pano_cls_ind)
 
 print("ssegs[0] shape: ")
@@ -286,11 +292,13 @@ print(ssegs[0].shape)
 print(ssegs[0])
 
 print("panos[0].shape: ")
-print(len(panos))
+print(panos[0].shape)
 print(panos)
 #pano_segment = Image.fromarray(panox2[0])
 #pano_segment.save("allnight.png")
 
+# *****************************************************************************************************
+# get final unified pan result
 pred_pans_2ch = get_unified_pan_result(ssegs, panos, pano_cls_inds, stuff_area_limit=4 * 64 * 64)
 #pan_2ch[:, :, 0] = pan_seg
 #pan_2ch[:, :, 1] = pan_ins
@@ -302,6 +310,11 @@ print(np.unique(pred_pans_2ch[0][:,:,1]))
 
 
 
+pano_segment = Image.fromarray(pred_pans_2ch[0][:,:,0])
+pano_instance = Image.fromarray(pred_pans_2ch[0][:,:,1]*255)
+
+pano_segment.save("pano_segment.png")
+pano_instance.save("pano_instance.png")
 
 
 
