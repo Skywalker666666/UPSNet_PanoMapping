@@ -937,6 +937,8 @@ class BaseDataset(torch.utils.data.Dataset):
         """
         max_shape = np.array([im.shape for im in ims]).max(axis=0)
         # Pad the image so they can be divisible by a stride
+        print("config.network.has_fpn: ")
+        print(config.network.has_fpn)        
         if config.network.has_fpn:
             stride = float(config.network.rpn_feat_stride[-2])
             max_shape[1] = int(np.ceil(max_shape[1] / stride) * stride)

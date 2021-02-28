@@ -11,6 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from upsnet.config.config import *
 from upsnet.config.parse_args import parse_args
+from upsnet.dataset.base_dataset import BaseDataset
 
 from upsnet.models import *
 
@@ -24,9 +25,16 @@ parser = argparse.ArgumentParser()
 
 args, rest = parser.parse_known_args()
 
+# for 1 gpu:
 args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_solo_1gpu.yaml"
-
 args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/output/upsnet/coco/upsnet_resnet50_coco_1gpu/train2017/upsnet_resnet_50_coco_234000.pth"
+
+# for 4 gpu or more:
+#args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_4gpu.yaml"
+#args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/model/upsnet_resnet_50_coco_90000.pth"
+# wrong
+#args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/model/upsnet_resnet_101_coco_pretrained_for_cityscapes.pth"
+
 
 solo_img_path = "/home/zhiliu/.mxnet/datasets/coco/val2017/"
 img_name = "000000022396.jpg"
@@ -83,33 +91,33 @@ def prep_im_for_blob(im, pixel_means, target_sizes, max_size):
 
 
 # function borrowed from upsnet/dataset/base_data.py
-def im_list_to_blob(ims, scale=1):
-    """Convert a list of images into a network input. Assumes images were
-    prepared using prep_im_for_blob or equivalent: i.e.
-      - BGR channel order
-      - pixel means subtracted
-      - resized to the desired input size
-      - float32 numpy ndarray format
-    Output is a 4D HCHW tensor of the images concatenated along axis 0 with
-    shape.
-    """
-    max_shape = np.array([im.shape for im in ims]).max(axis=0)
-    # Pad the image so they can be divisible by a stride
-    if config.network.has_fpn:
-        stride = float(config.network.rpn_feat_stride[-2])
-        max_shape[1] = int(np.ceil(max_shape[1] / stride) * stride)
-        max_shape[2] = int(np.ceil(max_shape[2] / stride) * stride)
-
-    num_images = len(ims)
-    blob = np.zeros((num_images, 3, int(max_shape[1] * scale), int(max_shape[2] * scale)),
-                    dtype=np.float32)
-    for i in range(num_images):
-        # transpose back to normal first, then after interpolate, transpose it back.
-        im = ims[i] if scale == 1 else cv2.resize(ims[i].transpose(1, 2, 0), None, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR).transpose(2, 0, 1)
-        blob[i, :, 0:im.shape[1], 0:im.shape[2]] = im
-    # Move channels (axis 3) to axis 1
-    # Axis order will become: (batch elem, channel, height, width)
-    return blob
+#def im_list_to_blob(ims, scale=1):
+#    """Convert a list of images into a network input. Assumes images were
+#    prepared using prep_im_for_blob or equivalent: i.e.
+#      - BGR channel order
+#      - pixel means subtracted
+#      - resized to the desired input size
+#      - float32 numpy ndarray format
+#    Output is a 4D HCHW tensor of the images concatenated along axis 0 with
+#    shape.
+#    """
+#    max_shape = np.array([im.shape for im in ims]).max(axis=0)
+#    # Pad the image so they can be divisible by a stride
+#    if config.network.has_fpn:
+#        stride = float(config.network.rpn_feat_stride[-2])
+#        max_shape[1] = int(np.ceil(max_shape[1] / stride) * stride)
+#        max_shape[2] = int(np.ceil(max_shape[2] / stride) * stride)
+#
+#    num_images = len(ims)
+#    blob = np.zeros((num_images, 3, int(max_shape[1] * scale), int(max_shape[2] * scale)),
+#                    dtype=np.float32)
+#    for i in range(num_images):
+#        # transpose back to normal first, then after interpolate, transpose it back.
+#        im = ims[i] if scale == 1 else cv2.resize(ims[i].transpose(1, 2, 0), None, None, fx=scale, fy=scale, interpolation=cv2.INTER_LINEAR).transpose(2, 0, 1)
+#        blob[i, :, 0:im.shape[1], 0:im.shape[2]] = im
+#    # Move channels (axis 3) to axis 1
+#    # Axis order will become: (batch elem, channel, height, width)
+#    return blob
 
 
 # function borrowed from upsnet/dataset/base_data.py
@@ -216,11 +224,12 @@ im_infos = np.array([[
 # prepare data fro fcn
 batch = [{'data': im_trans , 'im_info' : im_infos}]
 blob = {}
+BD = BaseDataset()
 for key in batch[0]:
     if key == 'data':
-        blob.update({'data': torch.from_numpy(im_list_to_blob([b['data'] for b in batch]))})
+        blob.update({'data': torch.from_numpy(BD.im_list_to_blob([b['data'] for b in batch]))})
         if config.network.has_panoptic_head:
-            blob.update({'data_4x': torch.from_numpy(im_list_to_blob([b['data'] for b in batch], scale=1/4.))})
+            blob.update({'data_4x': torch.from_numpy(BD.im_list_to_blob([b['data'] for b in batch], scale=1/4.))})
     elif key == 'im_info':
         blob.update({'im_info': np.vstack([b['im_info'] for b in batch])})
 
