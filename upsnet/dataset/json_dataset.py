@@ -76,10 +76,13 @@ class JsonDataset(object):
             v: i + 1
             for i, v in enumerate(self.COCO.getCatIds())
         }
+        print(self.json_category_id_to_contiguous_id) 
         self.contiguous_category_id_to_json_id = {
             v: k
             for k, v in self.json_category_id_to_contiguous_id.items()
         }
+        print(self.num_classes)
+
         # self._init_keypoints()
         self.keypoints = None
 

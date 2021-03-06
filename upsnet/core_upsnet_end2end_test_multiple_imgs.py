@@ -30,9 +30,8 @@ parser = argparse.ArgumentParser()
 
 args, rest = parser.parse_known_args()
 
-args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_solo_1gpu.yaml"
-
-args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/output/upsnet/coco/upsnet_resnet50_coco_1gpu/train2017/upsnet_resnet_50_coco_234000.pth"
+#args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_solo_1gpu.yaml"
+#args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/output/upsnet/coco/upsnet_resnet50_coco_1gpu/train2017/upsnet_resnet_50_coco_234000.pth"
 
 #solo_img_path = "/home/zhiliu/.mxnet/datasets/coco/val2017/"
 #img_name = "000000022396.jpg"
@@ -41,9 +40,20 @@ args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/Uni
 #img_name = "scenenn_camera_frame_1.575252_image.jpg"
 
 
-glob_path =  "/home/zhiliu/Documents/catkin_ws_VoSM/outputs/test_images_for_panoptic_02022021/*.jpg"
+#glob_path =  "/home/zhiliu/Documents/catkin_ws_VoSM/outputs/test_images_for_panoptic_02022021/*.jpg"
+
 #output_path = "output/upsnet/scenenn/upsnet_resnet50_coco_1gpu/test_from_scenenn_iros2021_m255/"
-output_path = "output/upsnet/scenenn/upsnet_resnet50_coco_1gpu/test_from_scenenn_iros2021_nom255/"
+#output_path = "output/upsnet/scenenn/upsnet_resnet50_coco_1gpu/test_from_scenenn_iros2021_nom255/"
+
+
+
+args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_1gpu.yaml"
+args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/model/upsnet_resnet_50_coco_90000.pth"
+
+
+glob_path =  "/home/zhiliu/Documents/Datasets/SceneNN_more_sequence/scenenn_data/223/image/*.png"
+output_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/output/upsnet/test_scenenn223_iros2021_m255/"
+
 
 
 args.eval_only = False
@@ -334,8 +344,8 @@ for i, img_path in enumerate(all_images):
     print(np.unique(pred_pans_2ch[0][:,:,1]))
     
     pano_segment = Image.fromarray(pred_pans_2ch[0][:,:,0])
-    #pano_instance = Image.fromarray(pred_pans_2ch[0][:,:,1]*255)
-    pano_instance = Image.fromarray(pred_pans_2ch[0][:,:,1])
+    pano_instance = Image.fromarray(pred_pans_2ch[0][:,:,1]*255)
+    #pano_instance = Image.fromarray(pred_pans_2ch[0][:,:,1])
     
     pano_segment.save(output_filename + "_pano2_segment.png")
     pano_instance.save(output_filename + "_pano2_instance.png")

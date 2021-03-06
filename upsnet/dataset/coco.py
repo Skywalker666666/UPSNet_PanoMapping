@@ -55,6 +55,8 @@ class coco(BaseDataset):
             'val2017': os.path.join(config.dataset.dataset_path, 'images', 'val2017'),
             'test-dev2017': os.path.join(config.dataset.dataset_path, 'images', 'test2017'),
             'soloval2017': os.path.join(config.dataset.dataset_path, 'images', 'val2017'),
+            'scannettrain2021': os.path.join(config.dataset.dataset_path, 'images', 'train2021'),
+            'scannetval2021': os.path.join(config.dataset.dataset_path, 'images', 'val2021'),
         }
 
         anno_files = {
@@ -68,13 +70,17 @@ class coco(BaseDataset):
             'val2017': 'instances_val2017.json',
             'test-dev2017': 'image_info_test-dev2017.json',
             'soloval2017': 'instances_soloval2017.json',
+            'scannettrain2021': 'instances_train2021.json',
+            'scannetval2021': 'instances_val2021.json',
         }
 
         if image_sets[0] == 'test-dev2017':
             self.panoptic_json_file = os.path.join(config.dataset.dataset_path, 'annotations', 'image_info_test-dev2017.json')
         else:
-            self.panoptic_json_file = os.path.join(config.dataset.dataset_path, 'annotations', 'panoptic_val2017_stff.json')
-            self.panoptic_gt_folder = os.path.join(config.dataset.dataset_path, 'annotations', 'panoptic_val2017')
+            #self.panoptic_json_file = os.path.join(config.dataset.dataset_path, 'annotations', 'panoptic_val2017_stff.json')
+            self.panoptic_json_file = os.path.join(config.dataset.dataset_path, 'annotations', 'panoptic_val2021_stff.json')
+            #self.panoptic_gt_folder = os.path.join(config.dataset.dataset_path, 'annotations', 'panoptic_val2017')
+            self.panoptic_gt_folder = os.path.join(config.dataset.dataset_path, 'annotations', 'panoptic_val2021')
 
         if proposal_files is None:
             proposal_files = [None] * len(image_sets)
@@ -83,7 +89,7 @@ class coco(BaseDataset):
             # combine multiple datasets
             roidbs = []
             for image_set, proposal_file in zip(image_sets, proposal_files):
-                dataset = JsonDataset('coco_' + image_set,
+                dataset = JsonDataset('scannet_' + image_set,
                                       image_dir=image_dirs[image_set],
                                       anno_file=os.path.join(config.dataset.dataset_path, 'annotations', anno_files[image_set]))
                 roidb = dataset.get_roidb(gt=True, proposal_file=proposal_file, crowd_filter_thresh=config.train.crowd_filter_thresh)
@@ -100,7 +106,7 @@ class coco(BaseDataset):
 
         else:
             assert len(image_sets) == 1
-            self.dataset = JsonDataset('coco_' + image_sets[0],
+            self.dataset = JsonDataset('scannet_' + image_sets[0],
                                        image_dir=image_dirs[image_sets[0]],
                                        anno_file=os.path.join(config.dataset.dataset_path, 'annotations',
                                                               anno_files[image_sets[0]]))
@@ -159,7 +165,7 @@ class coco(BaseDataset):
             raise NotImplementedError
         if config.network.has_fcn_head:
             if self.phase != 'test':
-                seg_gt = np.array(Image.open(self.roidb[index]['image'].replace('images', 'annotations').replace('train2017', 'panoptic_train2017_semantic_trainid_stff').replace('val2017', 'panoptic_val2017_semantic_trainid_stff').replace('jpg', 'png')))
+                seg_gt = np.array(Image.open(self.roidb[index]['image'].replace('images', 'annotations').replace('train2021', 'panoptic_train2021_semantic_trainid_stff').replace('val2021', 'panoptic_val2021_semantic_trainid_stff').replace('jpg', 'png')))
                 if self.roidb[index]['flipped']:
                     seg_gt = np.fliplr(seg_gt)
                 seg_gt = cv2.resize(seg_gt, None, None, fx=im_scales[0], fy=im_scales[0], interpolation=cv2.INTER_NEAREST)
@@ -246,7 +252,7 @@ class coco(BaseDataset):
         confusion_matrix = np.zeros((config.dataset.num_seg_classes, config.dataset.num_seg_classes))
         for i, roidb in enumerate(self.roidb):
 
-            seg_gt = np.array(Image.open(self.roidb[i]['image'].replace('images', 'annotations').replace('train2017', 'panoptic_train2017_semantic_trainid_stff').replace('val2017', 'panoptic_val2017_semantic_trainid_stff').replace('jpg', 'png'))).astype(np.float32)
+            seg_gt = np.array(Image.open(self.roidb[i]['image'].replace('images', 'annotations').replace('train2021', 'panoptic_train2021_semantic_trainid_stff').replace('val2021', 'panoptic_val2021_semantic_trainid_stff').replace('jpg', 'png'))).astype(np.float32)
 
             seg_pathes = os.path.split(roidb['image'])
             res_image_name = seg_pathes[-1]

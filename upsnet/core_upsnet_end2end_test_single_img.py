@@ -26,18 +26,22 @@ parser = argparse.ArgumentParser()
 args, rest = parser.parse_known_args()
 
 # for 1 gpu:
-args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_solo_1gpu.yaml"
-args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/output/upsnet/coco/upsnet_resnet50_coco_1gpu/train2017/upsnet_resnet_50_coco_234000.pth"
+#args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_solo_1gpu.yaml"
+#args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/output/upsnet/coco/upsnet_resnet50_coco_1gpu/train2017/upsnet_resnet_50_coco_234000.pth"
 
 # for 4 gpu or more:
-#args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_4gpu.yaml"
-#args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/model/upsnet_resnet_50_coco_90000.pth"
+args.cfg = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/upsnet/experiments/upsnet_resnet50_coco_4gpu.yaml"
+args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/model/upsnet_resnet_50_coco_90000.pth"
 # wrong
 #args.weight_path = "/home/zhiliu/Documents/Panoptic_Segement/Cocopanopticapi/UnifiedPanopticSeg/UPSNet_PanMapping/model/upsnet_resnet_101_coco_pretrained_for_cityscapes.pth"
 
 
-solo_img_path = "/home/zhiliu/.mxnet/datasets/coco/val2017/"
-img_name = "000000022396.jpg"
+#solo_img_path = "/home/zhiliu/.mxnet/datasets/coco/val2017/"
+#img_name = "000000022396.jpg"
+
+solo_img_path = "/home/zhiliu/Documents/Datasets/SceneNN_more_sequence/scenenn_data/223/image/"
+#img_name = "image04044.png"
+img_name = "image00001.png"
 
 args.eval_only = False
 
@@ -298,11 +302,11 @@ pano_cls_inds.append(pano_cls_ind)
 
 print("ssegs[0] shape: ")
 print(ssegs[0].shape)
-print(ssegs[0])
+#print(ssegs[0])
 
 print("panos[0].shape: ")
 print(panos[0].shape)
-print(panos)
+#print(panos)
 #pano_segment = Image.fromarray(panox2[0])
 #pano_segment.save("allnight.png")
 
@@ -318,6 +322,7 @@ print("pan_ins: ")
 print(np.unique(pred_pans_2ch[0][:,:,1]))
 
 
+print(pred_pans_2ch[0][479,0:100,0])
 
 pano_segment = Image.fromarray(pred_pans_2ch[0][:,:,0])
 pano_instance = Image.fromarray(pred_pans_2ch[0][:,:,1]*255)
@@ -325,5 +330,17 @@ pano_instance = Image.fromarray(pred_pans_2ch[0][:,:,1]*255)
 pano_segment.save("pano_segment.png")
 pano_instance.save("pano_instance.png")
 
+seg7_sub = (pred_pans_2ch[0][:,:,0]==7) * 255
+seg7 = Image.fromarray(seg7_sub.astype('uint8'))
+seg7.save("seg7.png")
 
+seg51 = Image.fromarray(((pred_pans_2ch[0][:,:,0]==51)*255).astype('uint8'))
+seg51.save("seg51.png")
+
+seg42 = Image.fromarray(((pred_pans_2ch[0][:,:,0]==42)*255).astype('uint8'))
+seg42.save("seg42.png")
+
+
+seg255 = Image.fromarray(((pred_pans_2ch[0][:,:,0]==255)*255).astype('uint8'))
+seg255.save("seg255.png")
 
