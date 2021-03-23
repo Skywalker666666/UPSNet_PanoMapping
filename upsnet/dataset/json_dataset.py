@@ -55,6 +55,15 @@ import upsnet.mask.mask_transform as segm_utils
 
 from lib.utils.logging import logger
 
+# for debugging
+import itertools
+
+
+def _isArrayLike(obj):
+    return hasattr(obj, '__iter__') and hasattr(obj, '__len__')
+
+
+
 class JsonDataset(object):
     """A class representing a COCO json dataset."""
 
@@ -104,10 +113,15 @@ class JsonDataset(object):
             'Crowd filter threshold must be 0 if ground-truth annotations ' \
             'are not included.'
         image_ids = self.COCO.getImgIds()
+        #print("image_ids: " + image_ids[0])
         image_ids.sort()
+        #print("image_ids: " + image_ids[0])
         roidb = copy.deepcopy(self.COCO.loadImgs(image_ids))
+        print("roidb: " + str(len(roidb)))
         for entry in roidb:
             self._prep_roidb_entry(entry)
+
+
         if gt:
             # Include ground-truth object annotations
             self.debug_timer.tic()
@@ -118,6 +132,7 @@ class JsonDataset(object):
                     '_add_gt_annotations took {:.3f}s'.
                     format(self.debug_timer.toc(average=False))
                 )
+
         if proposal_file is not None:
             # Include proposals from a file
             self.debug_timer.tic()
@@ -141,6 +156,11 @@ class JsonDataset(object):
         entry['image'] = os.path.join(
             self.image_directory, self.image_prefix + entry['file_name']
         )
+        #print(entry.keys())
+        #print(entry['image'])
+        #print(entry['id'])
+        #print(entry['dataset'])
+        #print(entry['file_name'])
         entry['flipped'] = False
         entry['has_visible_keypoints'] = False
         # Empty placeholders
@@ -166,7 +186,30 @@ class JsonDataset(object):
 
     def _add_gt_annotations(self, entry):
         """Add ground truth annotation metadata to an roidb entry."""
+        print(entry['id'])
+        #print(len(entry['id']))
+        imgIds2=entry['id']
+        print(len(imgIds2))
+        imgIds2 = imgIds2 if _isArrayLike(imgIds2) else [imgIds2]
+        print(len(imgIds2))
+
         ann_ids = self.COCO.getAnnIds(imgIds=entry['id'], iscrowd=None)
+        imgIds = [entry['id']]
+        lists = [self.COCO.imgToAnns[imgId] for imgId in imgIds if imgId in self.COCO.imgToAnns]
+        print(lists)
+
+        anns = list(itertools.chain.from_iterable(lists))
+        
+        #print(anns[0])
+        print(len(anns))
+
+        ids = [ann['id'] for ann in anns]
+        
+        print(ids)
+
+        #print(self.COCO.imgToAnns[entry['id']])
+        print(ann_ids)
+        print(xxx)
         objs = self.COCO.loadAnns(ann_ids)
         # Sanitize bboxes -- some are invalid
         valid_objs = []

@@ -105,13 +105,20 @@ class coco(BaseDataset):
             add_bbox_regression_targets(roidb)
 
         else:
+            print("phase is:" + str(phase))
             assert len(image_sets) == 1
             self.dataset = JsonDataset('scannet_' + image_sets[0],
                                        image_dir=image_dirs[image_sets[0]],
                                        anno_file=os.path.join(config.dataset.dataset_path, 'annotations',
                                                               anno_files[image_sets[0]]))
+
+            print("image_dir: " + image_dirs[image_sets[0]])
+            print("anno_file: " + os.path.join(config.dataset.dataset_path, 'annotations', anno_files[image_sets[0]]) )
+
+            print("image_set: " + str(image_sets[0]))
             roidb = self.dataset.get_roidb(gt=True, proposal_file=proposal_files[0],
                                            crowd_filter_thresh=config.train.crowd_filter_thresh if phase != 'test' else 0)
+            print("proposal_file: " + str(proposal_files[0]))
             if flip:
                 if logger:
                     logger.info('Appending horizontally-flipped training examples...')
