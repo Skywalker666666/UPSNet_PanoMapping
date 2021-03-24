@@ -495,6 +495,8 @@ def _compute_targets(entry):
         1 if config.network.cls_agnostic_bbox_reg else labels[ex_inds])
     targets[ex_inds, 1:] = box_utils.bbox_transform_inv(
         ex_rois, gt_rois, config.network.bbox_reg_weights)
+    print("targets: ")
+    print(targets)
     return targets
 
 
