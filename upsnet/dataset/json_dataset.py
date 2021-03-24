@@ -55,6 +55,12 @@ import upsnet.mask.mask_transform as segm_utils
 
 from lib.utils.logging import logger
 
+
+def _isArrayLike(obj):
+    return hasattr(obj, '__iter__') and hasattr(obj, '__len__')
+
+
+
 class JsonDataset(object):
     """A class representing a COCO json dataset."""
 
@@ -163,7 +169,14 @@ class JsonDataset(object):
 
     def _add_gt_annotations(self, entry):
         """Add ground truth annotation metadata to an roidb entry."""
+        #print("entry['id']: ")
         #print(entry['id'])
+
+        #imgIds2=entry['id']
+        #print(len(imgIds2))
+        #imgIds2 = imgIds2 if _isArrayLike(imgIds2) else [imgIds2]
+        #print(len(imgIds2))
+
         ann_ids = self.COCO.getAnnIds(imgIds=entry['id'], iscrowd=None)
         #imgIds = [entry['id']]
         #lists = [self.COCO.imgToAnns[imgId] for imgId in imgIds if imgId in self.COCO.imgToAnns]
