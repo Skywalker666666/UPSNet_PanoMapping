@@ -131,7 +131,9 @@ class coco(BaseDataset):
         self.phase = phase
         self.flip = flip
         self.result_path = result_path
-        self.num_classes = 81
+        #what is this one used for?
+        #self.num_classes = 81
+        self.num_classes = 20
 
     def __len__(self):
         return len(self.roidb)
@@ -141,11 +143,11 @@ class coco(BaseDataset):
         im_blob, im_scales = self.get_image_blob([self.roidb[index]])
 
 
-        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
-        print("im_blob")
-        print(im_blob)
-        print(im_blob.shape)
-        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        #print("im_blob")
+        #print(im_blob)
+        #print(im_blob.shape)
+        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         if config.network.has_rpn:
             if self.phase != 'test':
                 add_rpn_blobs(blob, im_scales, [self.roidb[index]])
@@ -210,14 +212,14 @@ class coco(BaseDataset):
             else:
                 pass
         
-        print("in the end of coco: ")
-        print("data")
-        print(data)
-        print("data size: ")
-        print(len(data))
-        print("label")
-        print(label)
-        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        #print("in the end of coco: ")
+        #print("data")
+        #print(data)
+        #print("data size: ")
+        #print(len(data))
+        #print("label")
+        #print(label)
+        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         
         return data, label, index
 

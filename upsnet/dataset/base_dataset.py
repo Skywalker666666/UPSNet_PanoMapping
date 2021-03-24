@@ -115,13 +115,16 @@ class BaseDataset(torch.utils.data.Dataset):
         scales.
         """
         num_images = len(roidb)
+        print("num_images: " + str(num_images))
         # Sample random scales to use for each image in this batch
         scale_inds = np.random.randint(
             0, high=len(config.train.scales), size=num_images
         )
-        print("******************************************************scale_inds: ")
-        print(scale_inds)
+        #print("******************************************************scale_inds: ")
+        #print(scale_inds)
+        print("config.train.scales: ")
         print(config.train.scales)
+        print("len(config.train.scales): ")
         print(len(config.train.scales))
         processed_ims = []
         im_scales = []
@@ -144,17 +147,17 @@ class BaseDataset(torch.utils.data.Dataset):
             im_scales.append(im_scale[0])
             processed_ims.append(im[0].transpose(2, 0, 1))
 
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$blob in base_data.py:")
-        print("len(processed_ims): ")
-        print(len(processed_ims))
+        #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$blob in base_data.py:")
+        #print("len(processed_ims): ")
+        #print(len(processed_ims))
 
         # Create a blob to hold the input images
         assert len(processed_ims) == 1
         blob = processed_ims[0]
         
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$blob in base_data.py:")
-        print(blob)
-        print(blob.shape)
+        #print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$blob in base_data.py:")
+        #print(blob)
+        #print(blob.shape)
 
         return blob, im_scales
 
@@ -176,14 +179,14 @@ class BaseDataset(torch.utils.data.Dataset):
         im_shape = im.shape
         im_size_min = np.min(im_shape[0:2])
         im_size_max = np.max(im_shape[0:2])
-        print("im_shape: ")
-        print(im_shape)
-        print(im_shape[0:2])
+        #print("im_shape: ")
+        #print(im_shape)
+        #print(im_shape[0:2])
 
-        print("im_size_min: ")
-        print(im_size_min)
-        print("im_size_max: ")
-        print(im_size_max)
+        #print("im_size_min: ")
+        #print(im_size_min)
+        #print("im_size_max: ")
+        #print(im_size_max)
 
         ims = []
         im_scales = []
@@ -993,11 +996,11 @@ class BaseDataset(torch.utils.data.Dataset):
             return None
         blob = {}
         for key in batch[0]:
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("key: ")
-            print(key)
+            #print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            #print("key: ")
+            #print(key)
             if key == 'data':
-                print("we are in")
+                #print("we are in")
                 blob.update({'data': torch.from_numpy(self.im_list_to_blob([b['data'] for b in batch]))})
                 if config.network.has_panoptic_head:
                     blob.update({'data_4x': torch.from_numpy(self.im_list_to_blob([b['data'] for b in batch], scale=1/4.))})
@@ -1012,7 +1015,7 @@ class BaseDataset(torch.utils.data.Dataset):
                 blob.update({'mask_gt': torch.from_numpy(self.gt_list_to_blob([b['mask_gt'] for b in batch], scale=1./4))})
             elif key == 'im_info':
                 blob.update({'im_info': np.vstack([b['im_info'] for b in batch])})
-                print("we are in 2")
+                #print("we are in 2")
             elif key == 'roidb':
                 assert len(batch) == 1
                 blob.update({'roidb': batch[0]['roidb']})

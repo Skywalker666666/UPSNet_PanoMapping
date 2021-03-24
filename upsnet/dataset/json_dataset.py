@@ -186,31 +186,31 @@ class JsonDataset(object):
 
     def _add_gt_annotations(self, entry):
         """Add ground truth annotation metadata to an roidb entry."""
-        print(entry['id'])
+        #print(entry['id'])
         #print(len(entry['id']))
-        imgIds2=entry['id']
-        print(len(imgIds2))
-        imgIds2 = imgIds2 if _isArrayLike(imgIds2) else [imgIds2]
-        print(len(imgIds2))
+        #imgIds2=entry['id']
+        #print(len(imgIds2))
+        #imgIds2 = imgIds2 if _isArrayLike(imgIds2) else [imgIds2]
+        #print(len(imgIds2))
 
-        ann_ids = self.COCO.getAnnIds(imgIds=entry['id'], iscrowd=None)
-        #imgIds = [entry['id']]
-        imgIds = entry['id']
+        #ann_ids = self.COCO.getAnnIds(imgIds=entry['id'], iscrowd=None)
+        imgIds = [entry['id']]
+        #imgIds = entry['id']
         lists = [self.COCO.imgToAnns[imgId] for imgId in imgIds if imgId in self.COCO.imgToAnns]
-        print(lists)
-
+        #print(lists)
         anns = list(itertools.chain.from_iterable(lists))
         
         #print(anns[0])
-        print(len(anns))
+        #print(len(anns))
 
         ids = [ann['id'] for ann in anns]
+        ann_ids = ids
         
-        print(ids)
+        #print(ids)
 
         #print(self.COCO.imgToAnns[entry['id']])
-        print(ann_ids)
-        print(xxx)
+        #print(ann_ids)
+        #print(xxx)
         objs = self.COCO.loadAnns(ann_ids)
         # Sanitize bboxes -- some are invalid
         valid_objs = []
