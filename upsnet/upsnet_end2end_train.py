@@ -178,6 +178,7 @@ def upsnet_train():
         batch_end_callback[0](0, 0)
 
     train_model.eval()
+    print("so far so good.")
 
     # start training
     while curr_iter < config.train.max_iteration:
@@ -253,10 +254,16 @@ def upsnet_train():
         else:
             inner_iter = 0
             train_iterator = train_loader.__iter__()
+            print("len(train_loader): ")
+            print(len(train_loader))
             while inner_iter + num_gpus <= len(train_loader):
                 batch = []
                 for gpu_id in gpus:
                     data, label, _ = train_iterator.next()
+                    #print("data: ")
+                    #print(data)
+                    #print("label: ")
+                    #print(label)
                     for k, v in data.items():
                         data[k] = v if not torch.is_tensor(v) else v.pin_memory().to(gpu_id, non_blocking=True)
                     for k, v in label.items():
