@@ -143,14 +143,16 @@ class coco(BaseDataset):
         im_blob, im_scales = self.get_image_blob([self.roidb[index]])
 
 
-        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
-        #print("im_blob")
+        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        print("im_blob")
         #print(im_blob)
-        #print(im_blob.shape)
-        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        print(im_blob.shape)
+        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         if config.network.has_rpn:
             if self.phase != 'test':
                 add_rpn_blobs(blob, im_scales, [self.roidb[index]])
+                print(blob.keys())
+
                 data = {'data': im_blob,
                         'im_info': blob['im_info']}
                 label = {'roidb': blob['roidb'][0]}
