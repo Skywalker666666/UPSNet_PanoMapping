@@ -277,6 +277,12 @@ class JsonDataset(object):
             else:
                 gt_overlaps[ix, cls] = 1.0
         entry['boxes'] = np.append(entry['boxes'], boxes, axis=0)
+
+
+
+        #print("entry['boxes']: ")
+        #print(entry['boxes'])
+
         entry['segms'].extend(valid_segms)
         # To match the original implementation:
         # entry['boxes'] = np.append(
