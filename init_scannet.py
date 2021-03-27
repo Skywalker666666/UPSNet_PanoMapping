@@ -6,6 +6,14 @@ if __name__ == "__main__":
 
     cat_json = json.load(open('lib/dataset_devkit/panopticapi/panoptic_scannet_categories.json'))
     cat_json_stff = copy.deepcopy(cat_json)
+
+    cat_idx_mapping = {}
+    for idx, k in enumerate(cat_json):
+        cat_idx_mapping[k['id']] = idx
+
+    for k in range(20):
+        cat_json_stff[k]['id'] = k
+
     json.dump(cat_json_stff, open('data/coco/annotations/panoptic_scannet_categories_stff.json', 'w'))
 
     for s in ['train', 'val']:
@@ -16,8 +24,13 @@ if __name__ == "__main__":
 
         pano_json_stff['categories'] = cat_json_stff
 
-        #for img in pano_json_stff['images']:
-        #     img['file_name'] = img['file_name'].replace('jpg', 'png')
+        for anno in pano_json_stff['annotations']:
+            for segments_info in anno['segments_info']:
+                segments_info['category_id'] = cat_idx_mapping[segments_info['category_id']]
+
+
+        for img in pano_json_stff['images']:
+            img['file_name'] = img['file_name'].replace('jpg', 'png')
         if s == 'val':
             pano_json_stff['images'] = sorted(pano_json_stff['images'], key=lambda x: x['id'])
         
