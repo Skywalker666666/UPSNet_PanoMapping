@@ -153,7 +153,7 @@ class BaseDataset(torch.utils.data.Dataset):
         blob = processed_ims[0]
         
         print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$blob in base_data.py:")
-        print(blob)
+        #print(blob)
         print(blob.shape)
 
         return blob, im_scales
@@ -993,9 +993,9 @@ class BaseDataset(torch.utils.data.Dataset):
             return None
         blob = {}
         for key in batch[0]:
-            print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-            print("key: ")
-            print(key)
+            #print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+            #print("key: ")
+            #print(key)
             if key == 'data':
                 print("we are in")
                 blob.update({'data': torch.from_numpy(self.im_list_to_blob([b['data'] for b in batch]))})

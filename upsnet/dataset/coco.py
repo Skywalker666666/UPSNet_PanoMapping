@@ -130,7 +130,7 @@ class coco(BaseDataset):
 
         print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         print("im_blob")
-        print(im_blob)
+        #print(im_blob)
         print(im_blob.shape)
         print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         if config.network.has_rpn:
@@ -160,6 +160,8 @@ class coco(BaseDataset):
         if config.network.has_fcn_head:
             if self.phase != 'test':
                 seg_gt = np.array(Image.open(self.roidb[index]['image'].replace('images', 'annotations').replace('train2017', 'panoptic_train2017_semantic_trainid_stff').replace('val2017', 'panoptic_val2017_semantic_trainid_stff').replace('jpg', 'png')))
+                print(self.roidb[index]['image'])
+                print(self.roidb[index]['image'].replace('images', 'annotations').replace('train2017', 'panoptic_train2017_semantic_trainid_stff').replace('val2017', 'panoptic_val2017_semantic_trainid_stff').replace('jpg', 'png'))
                 if self.roidb[index]['flipped']:
                     seg_gt = np.fliplr(seg_gt)
                 seg_gt = cv2.resize(seg_gt, None, None, fx=im_scales[0], fy=im_scales[0], interpolation=cv2.INTER_NEAREST)
@@ -187,6 +189,8 @@ class coco(BaseDataset):
                 if config.train.fcn_with_roi_loss:
                     gt_boxes = label['roidb']['boxes'][np.where((label['roidb']['gt_classes'] > 0) & (label['roidb']['is_crowd'] == 0))[0]]
                     gt_boxes = np.around(gt_boxes * im_scales[0]).astype(np.int32)
+                    print("gt_boxes: ")
+                    print(gt_boxes)
                     label.update({'seg_roi_gt': np.zeros((len(gt_boxes), config.network.mask_size, config.network.mask_size), dtype=np.int64)})
                     for i in range(len(gt_boxes)):
                         if gt_boxes[i][3] == gt_boxes[i][1]:
@@ -197,14 +201,14 @@ class coco(BaseDataset):
             else:
                 pass
         
-        print("in the end of coco: ")
-        print("data")
-        print(data)
-        print("data size: ")
-        print(len(data))
-        print("label")
-        print(label)
-        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        #print("in the end of coco: ")
+        #print("data")
+        #print(data)
+        #print("data size: ")
+        #print(len(data))
+        #print("label")
+        #print(label)
+        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         
         return data, label, index
 
