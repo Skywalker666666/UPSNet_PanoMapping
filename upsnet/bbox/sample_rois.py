@@ -163,8 +163,8 @@ def _expand_bbox_targets(bbox_target_data):
     """
     num_bbox_reg_classes = 2 if config.network.cls_agnostic_bbox_reg else config.dataset.num_classes
 
-    print("num_bbox_reg_classes: ")
-    print(num_bbox_reg_classes)
+    #print("num_bbox_reg_classes: ")
+    #print(num_bbox_reg_classes)
 
     clss = bbox_target_data[:, 0]
     bbox_targets = np.zeros((clss.size, 4 * num_bbox_reg_classes), dtype=np.float32)
@@ -174,9 +174,9 @@ def _expand_bbox_targets(bbox_target_data):
         cls = int(clss[ind])
         start = 4 * cls
         end = start + 4
-        print("------------------------------------------upsnet/bbox/sample_rois.py: ")
-        print(bbox_targets[ind, start:end])
-        print(bbox_target_data[ind, 1:])
+        #print("------------------------------------------upsnet/bbox/sample_rois.py: ")
+        #print(bbox_targets[ind, start:end])
+        #print(bbox_target_data[ind, 1:])
 
         bbox_targets[ind, start:end] = bbox_target_data[ind, 1:]
 

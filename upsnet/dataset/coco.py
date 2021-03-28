@@ -112,13 +112,13 @@ class coco(BaseDataset):
                                        anno_file=os.path.join(config.dataset.dataset_path, 'annotations',
                                                               anno_files[image_sets[0]]))
 
-            print("image_dir: " + image_dirs[image_sets[0]])
-            print("anno_file: " + os.path.join(config.dataset.dataset_path, 'annotations', anno_files[image_sets[0]]) )
+            #print("image_dir: " + image_dirs[image_sets[0]])
+            #print("anno_file: " + os.path.join(config.dataset.dataset_path, 'annotations', anno_files[image_sets[0]]) )
 
-            print("image_set: " + str(image_sets[0]))
+            #print("image_set: " + str(image_sets[0]))
             roidb = self.dataset.get_roidb(gt=True, proposal_file=proposal_files[0],
                                            crowd_filter_thresh=config.train.crowd_filter_thresh if phase != 'test' else 0)
-            print("proposal_file: " + str(proposal_files[0]))
+            #print("proposal_file: " + str(proposal_files[0]))
             if flip:
                 if logger:
                     logger.info('Appending horizontally-flipped training examples...')
@@ -143,15 +143,15 @@ class coco(BaseDataset):
         im_blob, im_scales = self.get_image_blob([self.roidb[index]])
 
 
-        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
-        print("im_blob")
-        #print(im_blob)
-        print(im_blob.shape)
-        print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
+        #print("im_blob")
+        ##print(im_blob)
+        #print(im_blob.shape)
+        #print("inside coco +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++: ")
         if config.network.has_rpn:
             if self.phase != 'test':
                 add_rpn_blobs(blob, im_scales, [self.roidb[index]])
-                print(blob.keys())
+                #print(blob.keys())
 
                 data = {'data': im_blob,
                         'im_info': blob['im_info']}
@@ -176,10 +176,9 @@ class coco(BaseDataset):
             raise NotImplementedError
         if config.network.has_fcn_head:
             if self.phase != 'test':
-                print("self.roidb[index]['image']: ")
-                print(self.roidb[index]['image'])
-                print("after replace: ")
-                print(self.roidb[index]['image'].replace('images', 'annotations').replace('train2021', 'panoptic_train2021_semantic_trainid_stff').replace('val2021', 'panoptic_val2021_semantic_trainid_stff').replace('jpg', 'png'))
+                print("self.roidb[index]['image']: " + str(self.roidb[index]['image']) + "___" + str(len(label['roidb']['gt_classes'])))
+                #print("after replace: ")
+                #print(self.roidb[index]['image'].replace('images', 'annotations').replace('train2021', 'panoptic_train2021_semantic_trainid_stff').replace('val2021', 'panoptic_val2021_semantic_trainid_stff').replace('jpg', 'png'))
 
                 seg_gt = np.array(Image.open(self.roidb[index]['image'].replace('images', 'annotations').replace('train2021', 'panoptic_train2021_semantic_trainid_stff').replace('val2021', 'panoptic_val2021_semantic_trainid_stff').replace('jpg', 'png')))
                 if self.roidb[index]['flipped']:
@@ -187,23 +186,35 @@ class coco(BaseDataset):
                 seg_gt = cv2.resize(seg_gt, None, None, fx=im_scales[0], fy=im_scales[0], interpolation=cv2.INTER_NEAREST)
                 label.update({'seg_gt': seg_gt})
                 label.update({'gt_classes': label['roidb']['gt_classes'][label['roidb']['is_crowd'] == 0]})
-                print("gt_classes: ")
-                print(label['roidb']['gt_classes'])
-                print(label['roidb']['gt_classes'][label['roidb']['is_crowd'] == 0])
-                print(label['roidb']['is_crowd'] == 0)
-                print(label['roidb']['gt_classes'][True])
+                #print("gt_classes: ")
+                #print(label['roidb']['gt_classes'])
+                #print(label['roidb']['gt_classes'][label['roidb']['is_crowd'] == 0])
+                #print(label['roidb']['is_crowd'] == 0)
+                #print(label['roidb']['gt_classes'][True])
 
 
                 label.update({'mask_gt': np.zeros((len(label['gt_classes']), im_blob.shape[-2], im_blob.shape[-1]))})
                 idx = 0
+                print("label['roidb']['gt_classes']: " + str(len(label['roidb']['gt_classes'])))
+                print(label['roidb']['gt_classes'])
+                print("label['roidb']['segms']: " + str(len(label['roidb']['segms'])))
+                if(len(label['roidb']['gt_classes']) == 7):
+                    print(label['roidb']['segms'])
+                print("*************************************************************")
                 for i in range(len(label['roidb']['gt_classes'])):
+                    print("Total: " + str(i) + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                     if label['roidb']['is_crowd'][i] != 0:
                         continue
+                    
                     if type(label['roidb']['segms'][i]) is list and type(label['roidb']['segms'][i][0]) is list:
+                        print(str(i) + "s1still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                         img = Image.new('L', (int(np.round(im_blob.shape[-1] / im_scales[0])), int(np.round(im_blob.shape[-2] / im_scales[0]))), 0)
+                        print(str(i) + "s2still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                         for j in range(len(label['roidb']['segms'][i])):
                             ImageDraw.Draw(img).polygon(tuple(label['roidb']['segms'][i][j]), outline=1, fill=1)
+                        print(str(i) + "s3still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                         label['mask_gt'][idx] = cv2.resize(np.array(img), None, None, fx=im_scales[0], fy=im_scales[0], interpolation=cv2.INTER_NEAREST)
+                        print(str(i) + "s4still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                     else:
                         assert type(label['roidb']['segms'][i]) is dict or type(label['roidb']['segms'][i][0]) is dict
                         if type(label['roidb']['segms'][i]) is dict:
@@ -216,8 +227,8 @@ class coco(BaseDataset):
                 if config.train.fcn_with_roi_loss:
                     gt_boxes = label['roidb']['boxes'][np.where((label['roidb']['gt_classes'] > 0) & (label['roidb']['is_crowd'] == 0))[0]]
                     gt_boxes = np.around(gt_boxes * im_scales[0]).astype(np.int32)
-                    print("gt_boxes: ")
-                    print(gt_boxes)
+                    #print("gt_boxes: ")
+                    #print(gt_boxes)
                     label.update({'seg_roi_gt': np.zeros((len(gt_boxes), config.network.mask_size, config.network.mask_size), dtype=np.int64)})
                     for i in range(len(gt_boxes)):
                         if gt_boxes[i][3] == gt_boxes[i][1]:
@@ -228,7 +239,7 @@ class coco(BaseDataset):
             else:
                 pass
         
-        print("in the end of coco: ")
+        #print("in the end of coco: ")
         #print("data: ")
         #print(data)
         #print("data size: ")

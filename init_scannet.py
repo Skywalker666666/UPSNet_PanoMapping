@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     for s in ['train', 'val']:
 
-        pano_json = json.load(open('data/coco/annotations/panoptic_{}2021.json'.format(s)))
+        pano_json = json.load(open('data/coco/annotations/panoptic_{}2025.json'.format(s)))
 
         pano_json_stff = copy.deepcopy(pano_json)
 
@@ -34,6 +34,6 @@ if __name__ == "__main__":
         if s == 'val':
             pano_json_stff['images'] = sorted(pano_json_stff['images'], key=lambda x: x['id'])
         
-        json.dump(pano_json_stff, open('data/coco/annotations/panoptic_{}2021_stff.json'.format(s), 'w'))
+        json.dump(pano_json_stff, open('data/coco/annotations/panoptic_{}2025_stff.json'.format(s), 'w'))
 
 

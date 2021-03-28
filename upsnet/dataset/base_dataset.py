@@ -115,17 +115,17 @@ class BaseDataset(torch.utils.data.Dataset):
         scales.
         """
         num_images = len(roidb)
-        print("num_images: " + str(num_images))
+        #print("num_images: " + str(num_images))
         # Sample random scales to use for each image in this batch
         scale_inds = np.random.randint(
             0, high=len(config.train.scales), size=num_images
         )
         #print("******************************************************scale_inds: ")
         #print(scale_inds)
-        print("config.train.scales: ")
-        print(config.train.scales)
-        print("len(config.train.scales): ")
-        print(len(config.train.scales))
+        #print("config.train.scales: ")
+        #print(config.train.scales)
+        #print("len(config.train.scales): ")
+        #print(len(config.train.scales))
         processed_ims = []
         im_scales = []
         for i in range(num_images):
@@ -135,12 +135,12 @@ class BaseDataset(torch.utils.data.Dataset):
             if roidb[i]['flipped']:
                 im = im[:, ::-1, :]
             target_size = config.train.scales[scale_inds[i]]
-            print("i: ")
-            print(i)
-            print("scale_inds: ")
-            print(scale_inds)
-            print("target_size = config.train.scales[scale_inds[i]]: ")
-            print(target_size)
+            #print("i: ")
+            #print(i)
+            #print("scale_inds: ")
+            #print(scale_inds)
+            #print("target_size = config.train.scales[scale_inds[i]]: ")
+            #print(target_size)
             im, im_scale = self.prep_im_for_blob(
                 im, config.network.pixel_means, [target_size], config.train.max_size
             )
@@ -195,8 +195,8 @@ class BaseDataset(torch.utils.data.Dataset):
             # Prevent the biggest axis from being more than max_size
             if np.round(im_scale * im_size_max) > max_size:
                 im_scale = float(max_size) / float(im_size_max)
-            print("im_scale: ")
-            print(im_scale)
+            #print("im_scale: ")
+            #print(im_scale)
             im = cv2.resize(im, None, None, fx=im_scale, fy=im_scale,
                             interpolation=cv2.INTER_LINEAR)
             ims.append(im)
@@ -251,8 +251,8 @@ class BaseDataset(torch.utils.data.Dataset):
             with open(pan_gt_json_file, 'r') as f:
                 pan_gt_json = json.load(f)
             files = [item['file_name'] for item in pan_gt_json['images']]
-            print("Name of first gt file: ")
-            print(files[0])
+            #print("Name of first gt file: ")
+            #print(files[0])
             cpu_num = multiprocessing.cpu_count()
             files_split = np.array_split(files, cpu_num)
             workers = multiprocessing.Pool(processes=cpu_num)
@@ -940,8 +940,8 @@ class BaseDataset(torch.utils.data.Dataset):
         """
         max_shape = np.array([im.shape for im in ims]).max(axis=0)
         # Pad the image so they can be divisible by a stride
-        print("config.network.has_fpn: ")
-        print(config.network.has_fpn)        
+        #print("config.network.has_fpn: ")
+        #print(config.network.has_fpn)        
         if config.network.has_fpn:
             stride = float(config.network.rpn_feat_stride[-2])
             max_shape[1] = int(np.ceil(max_shape[1] / stride) * stride)
