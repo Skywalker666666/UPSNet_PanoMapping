@@ -176,7 +176,7 @@ class coco(BaseDataset):
             raise NotImplementedError
         if config.network.has_fcn_head:
             if self.phase != 'test':
-                print("self.roidb[index]['image']: " + str(self.roidb[index]['image']) + "___" + str(len(label['roidb']['gt_classes'])))
+                #print("self.roidb[index]['image']: " + str(self.roidb[index]['image']) + "___" + str(len(label['roidb']['gt_classes'])))
                 #print("after replace: ")
                 #print(self.roidb[index]['image'].replace('images', 'annotations').replace('train2021', 'panoptic_train2021_semantic_trainid_stff').replace('val2021', 'panoptic_val2021_semantic_trainid_stff').replace('jpg', 'png'))
 
@@ -195,26 +195,26 @@ class coco(BaseDataset):
 
                 label.update({'mask_gt': np.zeros((len(label['gt_classes']), im_blob.shape[-2], im_blob.shape[-1]))})
                 idx = 0
-                print("label['roidb']['gt_classes']: " + str(len(label['roidb']['gt_classes'])))
-                print(label['roidb']['gt_classes'])
-                print("label['roidb']['segms']: " + str(len(label['roidb']['segms'])))
-                if(len(label['roidb']['gt_classes']) == 7):
-                    print(label['roidb']['segms'])
-                print("*************************************************************")
+                #print("label['roidb']['gt_classes']: " + str(len(label['roidb']['gt_classes'])))
+                #print(label['roidb']['gt_classes'])
+                #print("label['roidb']['segms']: " + str(len(label['roidb']['segms'])))
+                #if(len(label['roidb']['gt_classes']) == 7):
+                #    print(label['roidb']['segms'])
+                #print("*************************************************************")
                 for i in range(len(label['roidb']['gt_classes'])):
-                    print("Total: " + str(i) + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
+                    #print("Total: " + str(i) + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                     if label['roidb']['is_crowd'][i] != 0:
                         continue
                     
                     if type(label['roidb']['segms'][i]) is list and type(label['roidb']['segms'][i][0]) is list:
-                        print(str(i) + "s1still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
+                        #print(str(i) + "s1still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                         img = Image.new('L', (int(np.round(im_blob.shape[-1] / im_scales[0])), int(np.round(im_blob.shape[-2] / im_scales[0]))), 0)
-                        print(str(i) + "s2still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
+                        #print(str(i) + "s2still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                         for j in range(len(label['roidb']['segms'][i])):
                             ImageDraw.Draw(img).polygon(tuple(label['roidb']['segms'][i][j]), outline=1, fill=1)
-                        print(str(i) + "s3still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
+                        #print(str(i) + "s3still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                         label['mask_gt'][idx] = cv2.resize(np.array(img), None, None, fx=im_scales[0], fy=im_scales[0], interpolation=cv2.INTER_NEAREST)
-                        print(str(i) + "s4still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
+                        #print(str(i) + "s4still alive" + str(len(label['roidb']['gt_classes'])) + str(len(label['roidb']['segms'])) )
                     else:
                         assert type(label['roidb']['segms'][i]) is dict or type(label['roidb']['segms'][i][0]) is dict
                         if type(label['roidb']['segms'][i]) is dict:
