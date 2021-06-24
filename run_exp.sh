@@ -29,4 +29,14 @@
 # trainning script 03282021
 #python upsnet/upsnet_end2end_train.py --cfg upsnet/experiments/upsnet_resnet50_scannet_1gpu.yaml 
 
-python upsnet/upsnet_end2end_test.py --cfg upsnet/experiments/upsnet_resnet50_scannet_1gpu.yaml --weight_path output/upsnet/scannet/upsnet_resnet50_scannet_1gpu/scannettrain2021/upsnet_resnet_50_scannet_126000.pth
+#python upsnet/upsnet_end2end_test.py --cfg upsnet/experiments/upsnet_resnet50_scannet_1gpu.yaml --weight_path output/upsnet/scannet/upsnet_resnet50_scannet_1gpu/scannettrain2021/upsnet_resnet_50_scannet_126000.pth
+# we renamed this result folder to: test_scannet_April2021_1st_successfule_test
+
+
+# traininig and test 06222021
+#python upsnet/upsnet_end2end_train.py --cfg upsnet/experiments/upsnet_resnet50_scannet_1gpu.yaml 
+
+python upsnet/upsnet_end2end_test.py --cfg upsnet/experiments/upsnet_resnet50_scannet_1gpu.yaml --weight_path output/upsnet/scannet/upsnet_resnet50_scannet_1gpu/scannettrain2021/upsnet_resnet_50_scannet_130000.pth
+
+
+
