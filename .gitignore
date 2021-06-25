@@ -24,6 +24,8 @@ upsnet/rpn/__pycache__/
 upsnet/rpn/anchors.cpython-36m-x86_64-linux-gnu.so
 upsnet/rpn/build/
 
+upsnet/operators/build/
+upsnet/bbox/build/
 
 allnight.png
 *.png
