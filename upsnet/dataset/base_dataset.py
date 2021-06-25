@@ -73,6 +73,8 @@ class PQStat():
     def pq_average(self, categories, isthing):
         pq, sq, rq, n = 0, 0, 0, 0
         per_class_results = {}
+        print("pq_average categories: ")
+        print(categories)
         for label, label_info in categories.items():
             if isthing is not None:
                 cat_isthing = label_info['isthing'] == 1
@@ -93,8 +95,16 @@ class PQStat():
             pq += pq_class
             sq += sq_class
             rq += rq_class
-
-        return {'pq': pq / n, 'sq': sq / n, 'rq': rq / n, 'n': n}, per_class_results
+        #return {'pq': pq / n, 'sq': sq / n, 'rq': rq / n, 'n': n}, per_class_results
+        # is it a bug?
+        if n == 0:
+            print("****************************************************")
+            print("************SEVERE WARNING!!!!!!!!!!!!!!!!!*********")
+            print("****************************************************")
+            return {'pq': pq , 'sq': sq , 'rq': rq , 'n': n}, per_class_results
+        else:
+            return {'pq': pq / n, 'sq': sq / n, 'rq': rq / n, 'n': n}, per_class_results
+ 
 
 
 class BaseDataset(torch.utils.data.Dataset):
@@ -251,41 +261,50 @@ class BaseDataset(torch.utils.data.Dataset):
             with open(pan_gt_json_file, 'r') as f:
                 pan_gt_json = json.load(f)
             files = [item['file_name'] for item in pan_gt_json['images']]
-            #print("Name of first gt file: ")
-            #print(files[0])
-            cpu_num = multiprocessing.cpu_count()
+            print("Name of first gt file: ")
+            print(files[0])
+            ###cpu_num = multiprocessing.cpu_count()
+            cpu_num = 1
             files_split = np.array_split(files, cpu_num)
-            workers = multiprocessing.Pool(processes=cpu_num)
+            ###workers = multiprocessing.Pool(processes=cpu_num)
             processes = []
             for proc_id, files_set in enumerate(files_split):
-                p = workers.apply_async(BaseDataset._load_image_single_core, (proc_id, files_set, pan_gt_folder))
+                ###p = workers.apply_async(BaseDataset._load_image_single_core, (proc_id, files_set, pan_gt_folder))
+                p = BaseDataset._load_image_single_core(proc_id, files_set, pan_gt_folder)
                 processes.append(p)
-            workers.close()
-            workers.join()
+            ###workers.close()
+            ###workers.join()
             pan_gt_all = []
             for p in processes:
-                pan_gt_all.extend(p.get())
+                ###pan_gt_all.extend(p.get())
+                pan_gt_all.extend(p)
 
             categories = pan_gt_json['categories']
             categories = {el['id']: el for el in categories}
+            #print("categories: ")
+            #print(categories)
+
             color_gererator = IdGenerator(categories)
 
             return pan_gt_all, pan_gt_json, categories, color_gererator
 
         def get_pred(pan_2ch_all, color_gererator, cpu_num=None):
             if cpu_num is None:
-                cpu_num = multiprocessing.cpu_count()
+                ###cpu_num = multiprocessing.cpu_count()
+                cpu_num = 1
             pan_2ch_split = np.array_split(pan_2ch_all, cpu_num)
-            workers = multiprocessing.Pool(processes=cpu_num)
+            ###workers = multiprocessing.Pool(processes=cpu_num)
             processes = []
             for proc_id, pan_2ch_set in enumerate(pan_2ch_split):
-                p = workers.apply_async(BaseDataset._converter_2ch_single_core, (proc_id, pan_2ch_set, color_gererator))
+                ###p = workers.apply_async(BaseDataset._converter_2ch_single_core, (proc_id, pan_2ch_set, color_gererator))
+                p = BaseDataset._converter_2ch_single_core(proc_id, pan_2ch_set, color_gererator)
                 processes.append(p)
-            workers.close()
-            workers.join()
+            ###workers.close()
+            ###workers.join()
             annotations, pan_all = [], []
             for p in processes:
-                p = p.get()
+                ###p = p.get()
+                p = p
                 annotations.extend(p[0])
                 pan_all.extend(p[1])
             pan_json = {'annotations': annotations}
@@ -294,35 +313,40 @@ class BaseDataset(torch.utils.data.Dataset):
         def save_image(images, save_folder, gt_json, colors=None):
             os.makedirs(save_folder, exist_ok=True)
             names = [os.path.join(save_folder, item['file_name'].replace('_leftImg8bit', '').replace('jpg', 'png').replace('jpeg', 'png')) for item in gt_json['images']]
-            cpu_num = multiprocessing.cpu_count()
+            ###cpu_num = multiprocessing.cpu_count()
+            cpu_num = 1
             images_split = np.array_split(images, cpu_num)
             names_split = np.array_split(names, cpu_num)
-            workers = multiprocessing.Pool(processes=cpu_num)
+            ###workers = multiprocessing.Pool(processes=cpu_num)
             for proc_id, (images_set, names_set) in enumerate(zip(images_split, names_split)):
-                workers.apply_async(BaseDataset._save_image_single_core, (proc_id, images_set, names_set, colors))
-            workers.close()
-            workers.join()
+                ###workers.apply_async(BaseDataset._save_image_single_core, (proc_id, images_set, names_set, colors))
+                BaseDataset._save_image_single_core(proc_id, images_set, names_set, colors)
+            ###workers.close()
+            ###workers.join()
 
         def pq_compute(gt_jsons, pred_jsons, gt_pans, pred_pans, categories):
             start_time = time.time()
             # from json and from numpy
             gt_image_jsons = gt_jsons['images']
             gt_jsons, pred_jsons = gt_jsons['annotations'], pred_jsons['annotations']
-            cpu_num = multiprocessing.cpu_count()
+            ###cpu_num = multiprocessing.cpu_count()
+            cpu_num = 1
             gt_jsons_split, pred_jsons_split = np.array_split(gt_jsons, cpu_num), np.array_split(pred_jsons, cpu_num)
             gt_pans_split, pred_pans_split = np.array_split(gt_pans, cpu_num), np.array_split(pred_pans, cpu_num)
             gt_image_jsons_split = np.array_split(gt_image_jsons, cpu_num)
 
-            workers = multiprocessing.Pool(processes=cpu_num)
+            ###workers = multiprocessing.Pool(processes=cpu_num)
             processes = []
             for proc_id, (gt_jsons_set, pred_jsons_set, gt_pans_set, pred_pans_set, gt_image_jsons_set) in enumerate(zip(gt_jsons_split, pred_jsons_split, gt_pans_split, pred_pans_split, gt_image_jsons_split)):
-                p = workers.apply_async(BaseDataset._pq_compute_single_core, (proc_id, gt_jsons_set, pred_jsons_set, gt_pans_set, pred_pans_set, gt_image_jsons_set, categories))
+                ###p = workers.apply_async(BaseDataset._pq_compute_single_core, (proc_id, gt_jsons_set, pred_jsons_set, gt_pans_set, pred_pans_set, gt_image_jsons_set, categories))
+                p = BaseDataset._pq_compute_single_core(proc_id, gt_jsons_set, pred_jsons_set, gt_pans_set, pred_pans_set, gt_image_jsons_set, categories)
                 processes.append(p)
-            workers.close()
-            workers.join()
+            ###workers.close()
+            ###workers.join()
             pq_stat = PQStat()
             for p in processes:
-                pq_stat += p.get()
+                ###pq_stat += p.get()
+                pq_stat += p
             metrics = [("All", None), ("Things", True), ("Stuff", False)]
             results = {}
             for name, isthing in metrics:
@@ -418,21 +442,24 @@ class BaseDataset(torch.utils.data.Dataset):
             masks_all.append(masks_i[sorted_idxs])
             cls_idxs_all.append(cls_idxs_i[sorted_idxs])
 
-        cpu_num = multiprocessing.cpu_count()
+        ###cpu_num = multiprocessing.cpu_count()
+        cpu_num = 1
         boxes_split = np.array_split(boxes_all, cpu_num)
         cls_idxs_split = np.array_split(cls_idxs_all, cpu_num)
         masks_split = np.array_split(masks_all, cpu_num)
         segs_split = np.array_split(segs, cpu_num)
-        workers = multiprocessing.Pool(processes=cpu_num)
+        ###workers = multiprocessing.Pool(processes=cpu_num)
         processes = []
         for proc_id, (boxes_set, cls_idxs_set, masks_set, sems_set) in enumerate(zip(boxes_split, cls_idxs_split, masks_split, segs_split)):
-            p = workers.apply_async(BaseDataset._merge_pred_single_core, (proc_id, boxes_set, cls_idxs_set, masks_set, sems_set, score_threshold, fraction_threshold, stuff_area_limit))
+            ###p = workers.apply_async(BaseDataset._merge_pred_single_core, (proc_id, boxes_set, cls_idxs_set, masks_set, sems_set, score_threshold, fraction_threshold, stuff_area_limit))
+            p = BaseDataset._merge_pred_single_core(proc_id, boxes_set, cls_idxs_set, masks_set, sems_set, score_threshold, fraction_threshold, stuff_area_limit)
             processes.append(p)
-        workers.close()
-        workers.join()
+        ###workers.close()
+        ###workers.join()
         pan_2ch_all = []
         for p in processes:
-            pan_2ch_all.extend(p.get())
+            ###pan_2ch_all.extend(p.get())
+            pan_2ch_all.extend(p)
         return pan_2ch_all
 
     @staticmethod

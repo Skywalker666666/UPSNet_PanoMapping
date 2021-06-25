@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
         for img in pano_json_stff['images']:
             # string.replace(oldvalue, newvalue, count)
-            img['file_name'] = img['file_name'].replace('png', 'jpg')
+            img['file_name'] = img['file_name'].replace('jpg', 'png')
         if s == 'val':
             pano_json_stff['images'] = sorted(pano_json_stff['images'], key=lambda x: x['id'])
         
